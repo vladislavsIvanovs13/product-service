@@ -7,6 +7,8 @@ import org.example.Statistics;
 import org.example.cache.Cache;
 
 import java.util.*;
+import static org.example.states.State.HIT;
+import static org.example.states.State.MISS;
 
 @Getter
 @Setter
@@ -19,7 +21,7 @@ public class LinkedHashTable<K, V> implements Cache<K, V> {
     public LinkedHashTable() {
         hashTable = new HashMap<>();
         list = new LinkedList<>();
-        stats = new Statistics(0,0,0,0,
+        stats = new Statistics(0,0,0,0,0,
                 0,0, System.nanoTime(),0,0);
     }
 
@@ -33,16 +35,16 @@ public class LinkedHashTable<K, V> implements Cache<K, V> {
     @Override
     public V get(K key) {
         stats.incOperations();
+        stats.incRequests();
         Optional<Node> node = Optional.ofNullable(hashTable.get(key));
         if (node.isPresent()) {
             list.remove(node.get());
             list.add(node.get());
-            stats.updateHitRate();
-            stats.updateMissRate(false);
+            stats.updateRates(HIT);
+            stats.updateThroughput();
             return node.get().value;
         }
-        stats.updateMissRate(true);
-//        stats.updateMemoryUsed(hashTable, list);
+        stats.updateRates(MISS);
         stats.updateThroughput();
         return null;
     }
@@ -50,7 +52,6 @@ public class LinkedHashTable<K, V> implements Cache<K, V> {
     @Override
     public void put(K key, V value) {
         stats.incOperations();
-        stats.updateMissRate(true);
         if (hashTable.size() >= maxSize) {
             Node removed = list.removeFirst();
             hashTable.remove(removed.key);

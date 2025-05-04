@@ -3,13 +3,17 @@ package org.example;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.openjdk.jol.info.ClassLayout;
+import org.example.states.State;
+import org.openjdk.jol.info.GraphLayout;
+
+import static org.example.states.State.HIT;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class Statistics {
     private long operations;
+    private long requests;
     private long hits;
     private long misses;
     private double hitRate;
@@ -35,21 +39,25 @@ public class Statistics {
         operations++;
     }
 
-    public void updateHitRate() {
-        hitRate = (double) ++hits / operations;
+    public void incRequests() {
+        requests++;
     }
 
-    public void updateMissRate(boolean hasExtraMiss) {
-        if (hasExtraMiss)
-            missRate = (double) ++misses / operations;
-        else
-            missRate = (double) misses / operations;
+    public void updateRates(State state) {
+        if (state.equals(HIT)) {
+            hitRate = (double) ++hits / requests;
+            missRate = (double) misses / requests;
+        }
+        else {
+            hitRate = (double) hits / requests;
+            missRate = (double) ++misses / requests;
+        }
     }
 
     public void updateMemoryUsed(Object... objects) {
         long recalculated = 0;
         for (Object object : objects)
-            recalculated += ClassLayout.parseInstance(object).instanceSize();
+            recalculated += GraphLayout.parseInstance(object).totalSize();
         memoryUsed = recalculated;
     }
 
