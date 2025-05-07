@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: product
+  datasource:
+    url: jdbc:mysql://localhost:3306/product?createDatabaseIfNotExist=true
+    username: root
+    password: 123123
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+cache:
+  dataObjects: 1000
+  maxCacheSize: 200
+  operations: 10000
+  probability: 0.9

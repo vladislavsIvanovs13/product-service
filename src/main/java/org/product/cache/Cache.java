@@ -1,4 +1,4 @@
-package org.example.cache;
+package org.product.cache;
 
 public interface Cache<K, V> {
     V get(K key);

@@ -1,21 +1,27 @@
-package org.example.impl;
+package org.product.impl;
 
+import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.Statistics;
-import org.example.cache.Cache;
+import org.product.Statistics;
+import org.product.cache.Cache;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
-import static org.example.states.State.HIT;
-import static org.example.states.State.MISS;
+import static org.product.states.State.HIT;
+import static org.product.states.State.MISS;
 
 @Getter
 @Setter
+@Component
 public class LinkedHashTable<K, V> implements Cache<K, V> {
+    @Value("${cache.maxCacheSize}")
+    private long maxSize;
+
     private Map<K, Node> hashTable;
     private List<Node> list;
-    private long maxSize;
     private Statistics stats;
 
     public LinkedHashTable() {
@@ -61,7 +67,7 @@ public class LinkedHashTable<K, V> implements Cache<K, V> {
         list.add(added);
         hashTable.put(key, added);
         stats.incCacheSize();
-//        stats.updateMemoryUsed(hashTable, list);
+        stats.updateMemoryUsed(hashTable, list);
         stats.updateThroughput();
     }
 
