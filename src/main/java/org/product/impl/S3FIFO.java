@@ -1,22 +1,28 @@
-package org.example.impl;
+package org.product.impl;
 
+import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.Statistics;
-import org.example.cache.Cache;
+import org.product.Statistics;
+import org.product.cache.Cache;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-import static org.example.states.State.HIT;
-import static org.example.states.State.MISS;
+import static org.product.states.State.HIT;
+import static org.product.states.State.MISS;
 
 @Getter
 @Setter
+@Component
 public class S3FIFO<K, V> implements Cache<K, V> {
+    @Value("${cache.maxCacheSize}")
+    private long maxSize;
+
     private long mainMaxSize;
     private long smallMaxSize;
-    private long maxSize;
     private Queue<Node> mainQueue;
     private Queue<Node> smallQueue;
     private Set<K> ghostSet;
@@ -28,12 +34,6 @@ public class S3FIFO<K, V> implements Cache<K, V> {
         ghostSet = new HashSet<>();
         stats = new Statistics(0,0,0,0,0,
                 0,0, System.nanoTime(),0,0);
-    }
-
-    public void setMaxSize(long maxSize) {
-        this.maxSize = maxSize;
-        this.mainMaxSize = (long) (0.9 * maxSize);
-        this.smallMaxSize = (long) (0.1 * maxSize);
     }
 
     @AllArgsConstructor
@@ -135,5 +135,11 @@ public class S3FIFO<K, V> implements Cache<K, V> {
                 return node.value;
             }
         return null;
+    }
+
+    @PostConstruct
+    public void init() {
+        mainMaxSize = (long) (0.9 * maxSize);
+        smallMaxSize = (long) (0.1 * maxSize);
     }
 }

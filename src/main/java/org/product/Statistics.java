@@ -1,12 +1,12 @@
-package org.example;
+package org.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.states.State;
+import org.product.states.State;
 import org.openjdk.jol.info.GraphLayout;
 
-import static org.example.states.State.HIT;
+import static org.product.states.State.HIT;
 
 @Getter
 @Setter
