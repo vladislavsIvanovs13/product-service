@@ -9,8 +9,9 @@ spring:
     hibernate:
       ddl-auto: update
 
+server:
+  port: 8080
+
 cache:
   dataObjects: 1000
   maxCacheSize: 200
-  operations: 10000
-  probability: 0.9
