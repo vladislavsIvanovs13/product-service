@@ -67,7 +67,7 @@ public class LinkedHashTable<K, V> implements Cache<K, V> {
         list.add(added);
         hashTable.put(key, added);
         stats.incCacheSize();
-        stats.updateMemoryUsed(hashTable, list);
+//        stats.updateMemoryUsed(hashTable, list);
         stats.updateThroughput();
     }
 

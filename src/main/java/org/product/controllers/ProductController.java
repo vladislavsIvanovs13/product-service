@@ -18,13 +18,13 @@ public class ProductController {
         productService.fillDatabase();
     }
 
-//    @GetMapping("/{productId}")
-//    public Product getProduct(@PathVariable int productId) {
-//        return productService.getProduct(productId);
-//    }
+    @GetMapping("/getIds")
+    public List<Integer> getAllIds() {
+        return productService.getAllIds();
+    }
 
-    @GetMapping("/serve")
-    public List<ProductDto> serve() {
-        return productService.serve();
+    @GetMapping("/{productId}")
+    public ProductDto getProduct(@PathVariable("productId") int productId) {
+        return productService.getProduct(productId);
     }
 }

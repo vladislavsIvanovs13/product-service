@@ -21,12 +21,6 @@ public class ProductService {
     @Value("${cache.dataObjects}")
     private int dataObjects;
 
-    @Value("${cache.operations}")
-    private int operations;
-
-    @Value("${cache.probability}")
-    private double probability;
-
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final SplayTree<Integer, Product> cache;
@@ -54,6 +48,11 @@ public class ProductService {
     }
 
     @Transactional
+    public List<Integer> getAllIds() {
+        return productRepository.getAllIds();
+    }
+
+    @Transactional
     public ProductDto getProduct(int productId) {
         var product = cache.get(productId);
         if (product == null) {
@@ -72,30 +71,5 @@ public class ProductService {
         System.out.printf(Locale.US, "Execution time: %.4f s%n", (System.nanoTime() - cache.getStats().getStartTime()) / 1_000_000_000.0);
 
         return productMapper.toDto(product);
-    }
-
-    @Transactional
-    public List<ProductDto> serve() {
-        List<Integer> flow = new ArrayList<>();
-        List<Integer> data = productRepository.getAllIds();
-        Random random = new Random();
-        List<ProductDto> products = new ArrayList<>();
-
-        // need to check modelling course technic about probabilities and ifs
-        for (int i = 0; i < operations; i++) {
-            int bound = (int) Math.round(0.1 * dataObjects);
-            if (random.nextDouble() < probability)
-                flow.add(data.get(random.nextInt(0, bound)));
-            else
-                flow.add(data.get(random.nextInt(bound, dataObjects)));
-        }
-
-        var end = System.nanoTime();
-        for (int productId : flow)
-            products.add(getProduct(productId));
-
-        System.out.println("Serving " + dataObjects + " products");
-        System.out.printf(Locale.US, "Execution time: %.4f s%n", (System.nanoTime() - end) / 1_000_000_000.0);
-        return products;
     }
 }
