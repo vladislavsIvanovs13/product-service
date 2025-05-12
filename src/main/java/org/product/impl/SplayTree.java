@@ -200,7 +200,7 @@ public class SplayTree<K, V> implements Cache<K, V> {
         return current;
     }
 
-    public void searchNodeToEvict(Node current) {
+    private void searchNodeToEvict(Node current) {
         if (current == null) return;
         if (current.freq < minFreq) {
             minFreq = current.freq;

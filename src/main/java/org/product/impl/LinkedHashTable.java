@@ -1,6 +1,5 @@
 package org.product.impl;
 
-import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
