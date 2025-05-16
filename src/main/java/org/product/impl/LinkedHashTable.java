@@ -26,8 +26,8 @@ public class LinkedHashTable<K, V> implements Cache<K, V> {
     public LinkedHashTable() {
         hashTable = new HashMap<>();
         list = new LinkedList<>();
-        stats = new Statistics(0,0,0,0,0,
-                0,0, System.nanoTime(),0,0);
+        stats = new Statistics(0, 0, 0, 0, 0, 0,
+                0, System.nanoTime(), 0, 0, 0);
     }
 
     @Getter
@@ -39,6 +39,7 @@ public class LinkedHashTable<K, V> implements Cache<K, V> {
 
     @Override
     public V get(K key) {
+        var start = System.nanoTime();
         stats.incOperations();
         stats.incRequests();
         Optional<Node> node = Optional.ofNullable(hashTable.get(key));
@@ -46,16 +47,19 @@ public class LinkedHashTable<K, V> implements Cache<K, V> {
             list.remove(node.get());
             list.add(node.get());
             stats.updateRates(HIT);
+            stats.updateOpsTime(System.nanoTime() - start);
             stats.updateThroughput();
             return node.get().value;
         }
         stats.updateRates(MISS);
+        stats.updateOpsTime(System.nanoTime() - start);
         stats.updateThroughput();
         return null;
     }
 
     @Override
     public void put(K key, V value) {
+        var start = System.nanoTime();
         stats.incOperations();
         if (hashTable.size() >= maxSize) {
             Node removed = list.removeFirst();
@@ -67,6 +71,7 @@ public class LinkedHashTable<K, V> implements Cache<K, V> {
         hashTable.put(key, added);
         stats.incCacheSize();
 //        stats.updateMemoryUsed(hashTable, list);
+        stats.updateOpsTime(System.nanoTime() - start);
         stats.updateThroughput();
     }
 
@@ -76,6 +81,5 @@ public class LinkedHashTable<K, V> implements Cache<K, V> {
         list.clear();
         stats.invalidateCacheSize();
 //        stats.updateMemoryUsed(hashTable, list);
-        stats.updateThroughput();
     }
 }

@@ -20,6 +20,7 @@ public class Statistics {
     private double missRate;
     private double throughput;
     private double startTime;
+    private double opsTime;
     private long memoryUsed;
     private long cacheSize;
 
@@ -43,6 +44,10 @@ public class Statistics {
         requests++;
     }
 
+    public void updateOpsTime(double time) {
+        opsTime += time;
+    }
+
     public void updateRates(State state) {
         if (state.equals(HIT)) {
             hitRate = (double) ++hits / requests;
@@ -62,10 +67,7 @@ public class Statistics {
     }
 
     public void updateThroughput() {
-        double curTime = System.nanoTime();
-        double executionTime = (curTime - startTime) / 1_000_000_000;
+        double executionTime = opsTime / 1_000_000_000;
         throughput = operations / executionTime;
-//        System.out.printf("Exec time: %.8f %n", executionTime);
-//        System.out.printf("Throughput: %.0f ops/s%n", throughput);
     }
 }

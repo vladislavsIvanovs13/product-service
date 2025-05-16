@@ -25,8 +25,8 @@ public class SplayTree<K, V> implements Cache<K, V> {
     private Node minNode;
 
     public SplayTree() {
-        stats = new Statistics(0,0,0,0,0,
-                0,0, System.nanoTime(),0,0);
+        stats = new Statistics(0, 0, 0, 0, 0, 0,
+                0, System.nanoTime(), 0, 0, 0);
     }
 
     @AllArgsConstructor
@@ -47,6 +47,7 @@ public class SplayTree<K, V> implements Cache<K, V> {
 
     @Override
     public V get(K key) {
+        var start = System.nanoTime();
         stats.incOperations();
         stats.incRequests();
         Node current = root;
@@ -58,12 +59,14 @@ public class SplayTree<K, V> implements Cache<K, V> {
         }
         if (current == null) {
             stats.updateRates(MISS);
+            stats.updateOpsTime(System.nanoTime() - start);
             stats.updateThroughput();
             return null;
         }
         current.freq++;
         splay(current);
         stats.updateRates(HIT);
+        stats.updateOpsTime(System.nanoTime() - start);
         stats.updateThroughput();
 
         return (V) current.value;
@@ -71,6 +74,7 @@ public class SplayTree<K, V> implements Cache<K, V> {
 
     @Override
     public void put(K key, V value) {
+        var start = System.nanoTime();
         stats.incOperations();
         Node inserted = new Node((Comparable) key, value);
         Node current = root;
@@ -101,6 +105,7 @@ public class SplayTree<K, V> implements Cache<K, V> {
 
         stats.incCacheSize();
 //        stats.updateMemoryUsed(root);
+        stats.updateOpsTime(System.nanoTime() - start);
         stats.updateThroughput();
     }
 
@@ -109,7 +114,6 @@ public class SplayTree<K, V> implements Cache<K, V> {
         root = null;
         stats.invalidateCacheSize();
 //        stats.updateMemoryUsed(root);
-        stats.updateThroughput();
     }
 
     private void splay(Node node) {

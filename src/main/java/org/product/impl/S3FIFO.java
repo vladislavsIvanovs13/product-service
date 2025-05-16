@@ -32,8 +32,8 @@ public class S3FIFO<K, V> implements Cache<K, V> {
         mainQueue = new LinkedList<>();
         smallQueue = new LinkedList<>();
         ghostSet = new HashSet<>();
-        stats = new Statistics(0,0,0,0,0,
-                0,0, System.nanoTime(),0,0);
+        stats = new Statistics(0, 0, 0, 0, 0, 0,
+                0, System.nanoTime(), 0, 0, 0);
     }
 
     @AllArgsConstructor
@@ -45,29 +45,34 @@ public class S3FIFO<K, V> implements Cache<K, V> {
 
     @Override
     public V get(K key) {
+        var start = System.nanoTime();
         stats.incOperations();
         stats.incRequests();
         V smallQueueValue = searchForNode(smallQueue, key);
         if (smallQueueValue != null) {
+            stats.updateOpsTime(System.nanoTime() - start);
             stats.updateThroughput();
             return smallQueueValue;
         }
         V mainQueueValue = searchForNode(mainQueue, key);
         if (mainQueueValue != null) {
+            stats.updateOpsTime(System.nanoTime() - start);
             stats.updateThroughput();
             return mainQueueValue;
         }
         stats.updateRates(MISS);
+        stats.updateOpsTime(System.nanoTime() - start);
         stats.updateThroughput();
         return null;
     }
 
     @Override
     public void put(K key, V value) {
+        var start = System.nanoTime();
         stats.incOperations();
         Node inserted = new Node(key, value, 0);
 
-        if (mainQueue.size() + smallQueue.size() >= maxSize) {
+        if (mainQueue.size() >= mainMaxSize || smallQueue.size() >= smallMaxSize) {
             evict();
             stats.decCacheSize();
         }
@@ -81,6 +86,7 @@ public class S3FIFO<K, V> implements Cache<K, V> {
 
         stats.incCacheSize();
 //        stats.updateMemoryUsed(mainQueue, smallQueue, ghostSet);
+        stats.updateOpsTime(System.nanoTime() - start);
         stats.updateThroughput();
     }
 
@@ -91,7 +97,6 @@ public class S3FIFO<K, V> implements Cache<K, V> {
         ghostSet.clear();
         stats.invalidateCacheSize();
 //        stats.updateMemoryUsed(mainQueue, smallQueue, ghostSet);
-        stats.updateThroughput();
     }
 
     private void evict() {
